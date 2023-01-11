@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Decog Framework Demo</title>
+</head>
+<body>
+
+<script src="/lib/decog.js"></script>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" onerror="globalThis.adBlockerEnabled=true;"></script>
+<script type="text/javascript" src="/adex.js"></script>
+<script type="text/javascript">
+	function runningAdBlocker() {
+		if (globalThis.adBlockerEnabled) {
+		 	console.log('You\'re blocking ads')
+		 } else {
+		 	console.log('You\'re allowing ads')
+		 }
+	}
+	 decogBot(
+           function(obj) {
+             console.log(obj);
+          }
+        );
+	 window.onload = runningAdBlocker;
+</script>
+
+</body>
+</html>

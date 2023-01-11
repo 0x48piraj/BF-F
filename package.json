@@ -1,0 +1,31 @@
+{
+  "name": "decog-framework",
+  "version": "1.0.0",
+  "description": "Browser Fingerprinting Framework in addition to bots and Ad blocking detection.",
+  "main": "lib/decog.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/0x48piraj/decog-framework.git"
+  },
+  "keywords": [
+    "javascript",
+    "identification-engine",
+    "fraud-detection",
+    "browser-detection",
+    "browser-fingerprinting",
+    "bot-detection",
+    "adblocker-detection"
+  ],
+  "author": "Piyush Raj",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/0x48piraj/decog-framework/issues"
+  },
+  "homepage": "https://github.com/0x48piraj/decog-framework#readme"
+}
