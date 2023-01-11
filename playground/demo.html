@@ -1,28 +1,88 @@
+
 <!DOCTYPE html>
-<html>
-<head>
-	<title>Decog Framework Demo</title>
-</head>
-<body>
+<html lang="en" >
+  <head>
+    <meta charset="utf-8">
+    <title>Decog Framework Demo</title>
+    <meta name="viewport" content="width=device-width">
+    <style media="screen">
+      body {
+        margin: 0px;
+        background-color: #111;
+        font-family: sans-serif;
+        color: #aaa;
+      }
+      h1 {
+        margin-top: -1em;
+        text-align: center;
+        font-weight: normal;
+      }
+      pre {
+        margin: 10px;
+        white-space: normal;
+        font-size: 26px;
+        line-height: 1.5em;
+        color: #444;
+        transition: color 0.2s ease-out;
+      }
+      .demo-container {
+        display: flex;
+        height: 100vh;
+        box-sizing: border-box;
+        padding: 20px;
+        align-items: center;
+        justify-content: center;
+      }
+      @media (max-width: 800px) {
+        pre {
+          font-size: 13px;
+        }
+      }
+    </style>
+  </head>
+  <body class="demo-container">
+    <div>
+      <h1>Decog Framework Demo</h1>
+      <div id="results">
+   <pre id="decogBot" style="border-top: 1px dashed rgb(34, 34, 34); margin-top: 20px; padding-top: 20px;">decogBot() &gt; checking</pre>
+   <pre id="decogAdBlocker" style="border-top: 1px dashed rgb(34, 34, 34); margin-top: 20px; padding-top: 20px;">decogAdBlocker() &gt; checking</pre>
+   <pre id="decogBrowser" style="border-top: 1px dashed rgb(34, 34, 34); margin-top: 20px; padding-top: 20px;">decogBrowser() &gt; checking</pre>
+</div>
+    </div>
 
-<script src="/lib/decog.js"></script>
-<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" onerror="globalThis.adBlockerEnabled=true;"></script>
-<script type="text/javascript" src="/adex.js"></script>
-<script type="text/javascript">
-	function runningAdBlocker() {
-		if (globalThis.adBlockerEnabled) {
-		 	console.log('You\'re blocking ads')
-		 } else {
-		 	console.log('You\'re allowing ads')
-		 }
-	}
-	 decogBot(
-           function(obj) {
-             console.log(obj);
-          }
-        );
-	 window.onload = runningAdBlocker;
-</script>
 
-</body>
+    <script src="/lib/decog.js"></script>
+    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" onerror="globalThis.adBlockerEnabled=true;"></script>
+    <script>
+      (function() {
+            function displayResult(preId, result) {
+              var pre = document.getElementById(preId);
+              var status = result.status;
+              if(status == 'passed') {
+                pre.innerHTML = pre.innerHTML.substring(0, pre.innerHTML.length - 8) + 'Passed';
+                pre.style.color = 'green';
+              } else {
+                pre.innerHTML = pre.innerHTML.substring(0, pre.innerHTML.length - 8) + 'Detected';
+                pre.style.color = 'red';
+              }
+            }
+
+            decogBot(
+              function(result) {
+                displayResult(decogBot.name, result);
+              }
+            );
+
+            function runningAdBlocker() {
+              decogAdBlocker(
+                function(result) {
+                  displayResult(decogAdBlocker.name, result);
+                }
+              );
+            }
+
+            window.onload = runningAdBlocker;
+      })()
+    </script>
+  </body>
 </html>
