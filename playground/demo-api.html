@@ -8,21 +8,17 @@
 <script src="/lib/decog.js"></script>
 <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" onerror="globalThis.adBlockerEnabled=true;"></script>
 <script type="text/javascript">
-	function runningAdBlocker() {
-      decogAdBlocker(
-        function(obj) {
-          console.log(obj);
-        }
-      );
-    }
+    decogAdBlocker(
+      function(obj) {
+        console.log(obj);
+      }
+    );
 
-	decogBot(
+    decogBot(
        function(obj) {
          console.log(obj);
       }
     );
-
-	window.onload = runningAdBlocker;
 </script>
 
 </body>

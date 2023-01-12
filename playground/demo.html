@@ -73,15 +73,11 @@
               }
             );
 
-            function runningAdBlocker() {
-              decogAdBlocker(
-                function(result) {
-                  displayResult(decogAdBlocker.name, result);
-                }
-              );
-            }
-
-            window.onload = runningAdBlocker;
+            decogAdBlocker(
+              function(result) {
+                displayResult(decogAdBlocker.name, result);
+              }
+            );
       })()
     </script>
   </body>
