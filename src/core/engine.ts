@@ -5,8 +5,10 @@ import {
 } from './types'
 import { createContext } from './context'
 import { aggregate } from './result'
+import { SDK_VERSION } from '../version'
 
 export class DecogEngine {
+  readonly version = SDK_VERSION
   private strategies = new Map<string, DetectionStrategy>()
 
   use(strategy: DetectionStrategy): this {

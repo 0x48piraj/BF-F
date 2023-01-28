@@ -1,4 +1,5 @@
 import { createDefaultDecog } from './presets/default'
+export * from './version'
 
 const engine = createDefaultDecog()
 
