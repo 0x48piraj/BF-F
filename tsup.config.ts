@@ -7,7 +7,8 @@ export default defineConfig([
     format: ['esm', 'cjs'],
     dts: true,
     sourcemap: true,
-    clean: true
+    clean: true,
+    minify: false
   },
 
   // Browser global build
@@ -15,6 +16,6 @@ export default defineConfig([
     entry: ['src/browser.ts'],
     format: ['iife'],
     sourcemap: true,
-    minify: false
+    minify: true
   }
 ])
