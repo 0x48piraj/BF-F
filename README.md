@@ -40,7 +40,9 @@ Libraries like [UAParser.js](https://github.com/faisalman/ua-parser-js) extract 
 
 ## Why another detection library?
 
-The browser detection ecosystem is fragmented and largely outdated.
+The browser detection ecosystem is fragmented, largely outdated and often brittle, opaque or hard to audit.
+
+BF-F was built to address these issues emphasizing **modular, not monolithic** design and being **policy-agnostic, not authoritarian**.
 
 ### 1. Adblock detection is brittle and unmaintained
 
@@ -78,3 +80,163 @@ BF-F exists because:
 * Existing tools are **narrow, brittle, or opaque**
 * Modern detection requires **composable signals** NOT hardcoded verdicts
 * Developers need **control, transparency and extensibility**
+
+## Core idea
+
+Most detection libraries mix everything together:
+
+```mermaid
+flowchart TB
+    subgraph Typical["Typical detection libraries"]
+        direction LR
+        D1[Detect] --> D2[Decide] --> D3[Block]
+    end
+
+    subgraph BFF["BF-F layered model"]
+        direction LR
+        S1[Strategies]
+        S2[Signals]
+        S3[Confidence]
+        S4[Policy]
+        S5[Action]
+
+        S1 --> S2
+        S2 -->|no hard verdicts| S3
+        S3 -->|context, not enforcement| S4
+        S4 -->|your rules| S5
+    end
+
+    Typical -. "vs" .- BFF
+```
+
+BF-F deliberately splits this into layers:
+
+```mermaid
+flowchart TB
+    subgraph Strategies[Detection strategies]
+        A[Adblock detection]
+        B[Bot / Headless detection]
+        C[Environment sanity checks]
+        D[Private mode detection]
+    end
+
+    Signals[Explainable signals]
+    Confidence[Confidence & Risk scoring]
+    Policy[Application-defined policy]
+    Action[User-defined action]
+
+    Strategies --> Signals
+    Signals --> Confidence
+    Confidence --> Policy
+    Policy --> Action
+```
+
+This gives you:
+
+* Fewer false positives
+* Explainable decisions
+* Tunable sensitivity
+* Enterprise-friendly behavior
+
+## Example (browser usage)
+
+```html
+<script src="./dist/browser.global.js"></script>
+<script>
+(async () => {
+  const adblock = await BFF.detect('adblock')
+  const bot = await BFF.detect('bot')
+
+  console.log(adblock)
+  console.log(bot)
+})()
+</script>
+```
+
+Example result:
+
+```json
+{
+  "blocked": false,
+  "confidence": 0.00,
+  "signals": [
+    {
+      "strategy": "adblock:dom",
+      "block": false,
+      "weight": 1
+    }
+  ]
+}
+```
+
+> Note: Confidence is a suspicion score, not a success indicator.
+
+| Confidence | Meaning                        |
+| ---------- | ------------------------------ |
+| `0.00`     | No suspicious signals detected |
+| `0.25`     | Weak suspicion                 |
+| `0.50`     | Uncertain                      |
+| `0.75`     | Strong suspicion               |
+| `1.00`     | Very strong suspicion          |
+
+## Detection categories
+
+BF-F currently supports:
+
+### Adblock detection
+
+* Script bait detection
+* DOM bait hiding
+* (Extensible to network & timing probes)
+
+### Bot / automation detection
+
+* `navigator.webdriver`
+* Headless browser globals
+* Feature sanity checks
+
+Each check is implemented as a **strategy**.
+
+## Strategy-based architecture
+
+Every detection mechanism is a self-contained strategy:
+
+```ts
+{
+  id: 'bot:webdriver',
+  type: 'bot',
+  run(ctx) {
+    return {
+      block: ctx.navigator.webdriver === true,
+      weight: 3
+    }
+  }
+}
+```
+
+You can easily:
+
+* Add strategies
+* Remove strategies
+* Weight strategies differently
+* Ship different presets
+
+## Design philosophy
+
+BF-F is built on a few key principles:
+
+* Detection is probabilistic, not binary
+* Blocking is contextual: the application decides how to respond
+* False positives are worse than misses
+* Applications know best how to react
+
+These principles inform our **design goals**:
+
+* Probabilistic and extensible strategies
+* Explainable, auditable detection signals
+* Future-ready, ML-compatible scoring
+
+## Roadmap
+
+- [ ] Strategy weighting (in progress)
+- [ ] Policy engine (`block if confidence >= X`)
