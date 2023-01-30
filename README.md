@@ -13,6 +13,12 @@ BF-F focuses on producing **raw, explainable detection signals** with **confiden
 > BF-F is a **signal engine**.
 > You decide how _(or if)_ those signals are enforced.
 
+### Live demo
+
+See BF-F in action:
+
+**[Try the demo](https://piyushraj.org/works/bff)**
+
 ### How it compares
 
 BF-F is best understood as an **open-source alternative** to:
@@ -138,7 +144,27 @@ This gives you:
 * Tunable sensitivity
 * Enterprise-friendly behavior
 
-## Example (browser usage)
+## Usage
+
+Getting started with BF-F is easy:
+
+### Node / bundlers
+
+```ts
+import BFF from '@bff/signals'
+
+const result = await BFF.detect('bot')
+```
+
+or
+
+```ts
+import { createDefaultBFF } from '@bff/signals'
+
+const engine = createDefaultBFF()
+```
+
+### Example (browser)
 
 ```html
 <script src="./dist/browser.global.js"></script>
@@ -153,7 +179,7 @@ This gives you:
 </script>
 ```
 
-Example result:
+#### Example result
 
 ```json
 {
