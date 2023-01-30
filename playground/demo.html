@@ -1,84 +1,60 @@
-
 <!DOCTYPE html>
-<html lang="en" >
-  <head>
-    <meta charset="utf-8">
-    <title>Decog Framework Demo</title>
-    <meta name="viewport" content="width=device-width">
-    <style media="screen">
-      body {
-        margin: 0px;
-        background-color: #111;
-        font-family: sans-serif;
-        color: #aaa;
-      }
-      h1 {
-        margin-top: -1em;
-        text-align: center;
-        font-weight: normal;
-      }
-      pre {
-        margin: 10px;
-        white-space: normal;
-        font-size: 26px;
-        line-height: 1.5em;
-        color: #444;
-        transition: color 0.2s ease-out;
-      }
-      .demo-container {
-        display: flex;
-        height: 100vh;
-        box-sizing: border-box;
-        padding: 20px;
-        align-items: center;
-        justify-content: center;
-      }
-      @media (max-width: 800px) {
-        pre {
-          font-size: 13px;
-        }
-      }
-    </style>
-  </head>
-  <body class="demo-container">
-    <div>
-      <h1>Decog Framework Demo</h1>
-      <div id="results">
-   <pre id="decogBot" style="border-top: 1px dashed rgb(34, 34, 34); margin-top: 20px; padding-top: 20px;">decogBot() &gt; checking</pre>
-   <pre id="decogAdBlocker" style="border-top: 1px dashed rgb(34, 34, 34); margin-top: 20px; padding-top: 20px;">decogAdBlocker() &gt; checking</pre>
-   <pre id="decogBrowser" style="border-top: 1px dashed rgb(34, 34, 34); margin-top: 20px; padding-top: 20px;">decogBrowser() &gt; checking</pre>
-</div>
-    </div>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Decog SDK Demo</title>
 
+  <!-- Fake ad script bait -->
+  <script async
+    src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+    onerror="window.adBlockerEnabled = true;">
+  </script>
 
-    <script src="/lib/decog.js"></script>
-    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" onerror="globalThis.adBlockerEnabled=true;"></script>
-    <script>
-      (function() {
-            function displayResult(preId, result) {
-              var pre = document.getElementById(preId);
-              var status = result.status;
-              if(status == 'passed') {
-                pre.innerHTML = pre.innerHTML.substring(0, pre.innerHTML.length - 8) + 'Passed';
-                pre.style.color = 'green';
-              } else {
-                pre.innerHTML = pre.innerHTML.substring(0, pre.innerHTML.length - 8) + 'Detected';
-                pre.style.color = 'red';
-              }
-            }
+  <style>
+    body {
+      font-family: monospace;
+      background: #0e0e0e;
+      color: #ddd;
+      padding: 20px;
+    }
+    .ok { color: #00ff9c; }
+    .bad { color: #ff5f5f; }
+    pre {
+      border-top: 1px dashed #333;
+      padding-top: 12px;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
 
-            decogBot(
-              function(result) {
-                displayResult(decogBot.name, result);
-              }
-            );
+<h1>Decog SDK Demo</h1>
 
-            decogAdBlocker(
-              function(result) {
-                displayResult(decogAdBlocker.name, result);
-              }
-            );
-      })()
-    </script>
-  </body>
+<pre id="adblock">Adblock: checking...</pre>
+<pre id="bot">Bot: checking...</pre>
+
+<script src="../dist/browser.global.js"></script>
+<script>
+(async function () {
+  const adblock = await Decog.detect('adblock')
+  const bot = await Decog.detect('bot')
+
+  function render(id, result) {
+    const el = document.getElementById(id)
+    el.textContent =
+      id.toUpperCase() + ' = ' +
+      (result.blocked ? 'DETECTED' : 'PASSED') +
+      ' (confidence: ' + result.confidence.toFixed(2) + ')'
+
+    el.className = result.blocked ? 'bad' : 'ok'
+  }
+
+  render('adblock', adblock)
+  render('bot', bot)
+
+  console.log('Full result', { adblock, bot })
+})()
+</script>
+
+</body>
 </html>
