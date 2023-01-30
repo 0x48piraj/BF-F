@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Decog SDK Demo</title>
+  <title>BF-F SDK Demo</title>
 
   <!-- Fake ad script bait -->
   <script async
@@ -28,7 +28,7 @@
 </head>
 <body>
 
-<h1>Decog SDK Demo</h1>
+<h1>BF-F SDK Demo</h1>
 
 <pre id="adblock">Adblock: checking...</pre>
 <pre id="bot">Bot: checking...</pre>
@@ -36,8 +36,8 @@
 <script src="../dist/browser.global.js"></script>
 <script>
 (async function () {
-  const adblock = await Decog.detect('adblock')
-  const bot = await Decog.detect('bot')
+  const adblock = await BFF.detect('adblock')
+  const bot = await BFF.detect('bot')
 
   function render(id, result) {
     const el = document.getElementById(id)

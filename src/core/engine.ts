@@ -7,7 +7,7 @@ import { createContext } from './context'
 import { aggregate } from './result'
 import { SDK_VERSION } from '../version'
 
-export class DecogEngine {
+export class BFFEngine {
   readonly version = SDK_VERSION
   private strategies = new Map<string, DetectionStrategy>()
 

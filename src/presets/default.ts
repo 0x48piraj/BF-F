@@ -1,4 +1,4 @@
-import { DecogEngine } from '../core/engine'
+import { BFFEngine } from '../core/engine'
 import {
   ScriptBaitStrategy,
   DomBaitStrategy
@@ -8,8 +8,8 @@ import {
   HeadlessVarsStrategy
 } from '../strategies/bot'
 
-export function createDefaultDecog() {
-  return new DecogEngine()
+export function createDefaultBFF() {
+  return new BFFEngine()
     .use(ScriptBaitStrategy)
     .use(DomBaitStrategy)
     .use(WebdriverStrategy)

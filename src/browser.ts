@@ -1,3 +1,3 @@
-import { createDefaultDecog } from './presets/default'
+import { createDefaultBFF } from './presets/default'
 
-;(window as any).Decog = createDefaultDecog()
+;(window as any).BFF = createDefaultBFF()
