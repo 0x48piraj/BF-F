@@ -1,12 +1,13 @@
 import { DetectionSignal, DetectionResult } from './types'
+import { normalizeWeight, normalizeConfidence } from './validate'
 
 export function aggregate(signals: DetectionSignal[]): DetectionResult {
   let total = 0
   let positive = 0
 
   for (const s of signals) {
-    const weight = s.weight ?? 1
-    const confidence = s.confidence ?? 1
+    const weight = normalizeWeight(s.weight)
+    const confidence = normalizeConfidence(s.confidence)
     const contribution = weight * confidence
 
     total += contribution
