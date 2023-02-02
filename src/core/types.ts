@@ -23,9 +23,14 @@ export interface DetectionResult {
   signals: DetectionSignal[]
 }
 
-export interface DetectionStrategy {
+export interface DetectionStrategyMeta {
   id: string
   type: DetectionType
   version?: string
+  description?: string
+  weight?: number
+}
+
+export interface DetectionStrategy extends DetectionStrategyMeta {
   run(ctx: DetectionContext): DetectionSignal | Promise<DetectionSignal>
 }
