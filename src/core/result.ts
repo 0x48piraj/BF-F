@@ -1,13 +1,21 @@
 import { DetectionSignal, DetectionResult } from './types'
 
 export function aggregate(signals: DetectionSignal[]): DetectionResult {
-  const positives = signals.filter(s => s.block)
+  let total = 0
+  let positive = 0
+
+  for (const s of signals) {
+    const weight = s.weight ?? 1
+    const confidence = s.confidence ?? 1
+    const contribution = weight * confidence
+
+    total += contribution
+    if (s.block) positive += contribution
+  }
 
   return {
-    blocked: positives.length > 0,
-    confidence: signals.length
-      ? positives.length / signals.length
-      : 0,
+    blocked: positive > 0,
+    confidence: total > 0 ? positive / total : 0,
     signals
   }
 }

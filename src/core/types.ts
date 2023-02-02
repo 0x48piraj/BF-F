@@ -12,6 +12,7 @@ export interface DetectionSignal {
   strategy: string
   block: boolean
   signal?: string
+  weight?: number
   confidence?: number
   error?: boolean
 }
