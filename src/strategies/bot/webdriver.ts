@@ -4,11 +4,15 @@ export const WebdriverStrategy: DetectionStrategy = {
   id: 'bot:webdriver',
   type: 'bot',
   version: '1.0.0',
+  weight: 4,
 
   run({ navigator }) {
+    const detected = navigator.webdriver === true
+
     return {
       strategy: this.id,
-      block: navigator.webdriver === true,
+      block: detected,
+      confidence: detected ? 1 : 0,
       signal: 'navigator.webdriver'
     }
   }

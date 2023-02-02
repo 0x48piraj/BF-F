@@ -4,6 +4,7 @@ export const DomBaitStrategy: DetectionStrategy = {
   id: 'adblock:dom',
   type: 'adblock',
   version: '1.0.0',
+  weight: 1.5,
 
   run({ document }) {
     const bait = document.createElement('div')
@@ -19,6 +20,7 @@ export const DomBaitStrategy: DetectionStrategy = {
     return {
       strategy: this.id,
       block: blocked,
+      confidence: blocked ? 0.8 : 0.3,
       signal: 'dom bait hidden'
     }
   }
