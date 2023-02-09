@@ -45,7 +45,13 @@
     let output = ''
     output += id.toUpperCase() + '\n'
     output += 'Status: ' + (result.blocked ? 'DETECTED' : 'PASSED') + '\n'
-    output += 'Final confidence: ' + result.confidence.toFixed(2) + '\n\n'
+    output +=
+      'Suspicion: ' +
+      Math.round(result.confidence * 100) +
+      '%\n' +
+      '(block confidence: ' +
+      result.confidence.toFixed(2) +
+      ')\n\n'
     output += 'Signals:\n'
 
     for (const s of result.signals) {
