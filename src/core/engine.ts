@@ -33,15 +33,29 @@ export class BFFEngine {
       if (strategy.type !== type) continue
 
       try {
-        const signal = await strategy.run(ctx)
+        const raw = await strategy.run(ctx)
+
+        const signal = {
+            strategy: strategy.id,
+            block: Boolean(raw.block),
+            signal: raw.signal,
+            error: raw.error,
+            confidence: raw.confidence,
+            weight: raw.weight ?? strategy.weight
+        }
+
         signals.push(signal)
 
         if (signal.block) break
-      } catch {
+      } catch (err) {
         signals.push({
           strategy: strategy.id,
           block: false,
-          error: true
+          error: true,
+          confidence: 0,
+          weight: strategy.weight,
+          signal:
+          err instanceof Error ? err.message : 'strategy execution error'
         })
       }
     }
