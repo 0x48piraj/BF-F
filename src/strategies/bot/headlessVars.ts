@@ -18,7 +18,7 @@ export const HeadlessVarsStrategy: DetectionStrategy = {
     const detected = FLAGS.some(key => key in window)
 
     return {
-      strategy: this.id,
+      strategy: 'bot:globals',
       block: detected,
       confidence: detected ? 0.7 : 0.3,
       signal: 'headless global variables'

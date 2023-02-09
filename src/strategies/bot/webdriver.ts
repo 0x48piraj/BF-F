@@ -10,7 +10,7 @@ export const WebdriverStrategy: DetectionStrategy = {
     const detected = navigator.webdriver === true
 
     return {
-      strategy: this.id,
+      strategy: 'bot:webdriver',
       block: detected,
       confidence: detected ? 1 : 0,
       signal: 'navigator.webdriver'
