@@ -21,6 +21,7 @@ export interface DetectionResult {
   blocked: boolean
   confidence: number
   signals: DetectionSignal[]
+  version?: string
 }
 
 export interface DetectionStrategyMeta {
