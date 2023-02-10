@@ -14,7 +14,10 @@ export const WebdriverStrategy: DetectionStrategy = {
       strategy: 'bot:webdriver',
       block: detected,
       confidence: detected ? 1 : 0,
-      signal: 'navigator.webdriver'
+      signal: 'navigator.webdriver',
+      evidence: {
+          webdriver: navigator.webdriver
+      }
     }
   }
 }

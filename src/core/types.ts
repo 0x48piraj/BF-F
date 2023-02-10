@@ -15,6 +15,7 @@ export interface DetectionSignal {
   weight?: number
   confidence?: number
   error?: boolean
+  evidence?: Record<string, unknown>
 }
 
 export interface DetectionResult {
