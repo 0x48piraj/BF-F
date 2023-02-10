@@ -1,4 +1,5 @@
 import { createDefaultBFF } from './presets/default'
+import { SDK_VERSION } from './version'
 
 if (typeof window === 'undefined') {
   throw new Error(
@@ -12,6 +13,6 @@ const g = window as any
 if (!g.BFF) {
   g.BFF = {
     create: createDefaultBFF,
-    version: '1.0.0'
+    version: SDK_VERSION
   }
 }

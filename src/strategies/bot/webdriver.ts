@@ -1,9 +1,10 @@
 import { DetectionStrategy } from '../../core/types'
+import { SDK_VERSION } from '../../version'
 
 export const WebdriverStrategy: DetectionStrategy = {
   id: 'bot:webdriver',
   type: 'bot',
-  version: '1.0.0',
+  version: SDK_VERSION,
   weight: 4,
 
   run({ navigator }) {

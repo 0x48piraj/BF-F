@@ -1,4 +1,5 @@
 import { DetectionStrategy } from '../../core/types'
+import { SDK_VERSION } from '../../version'
 
 const FLAGS = [
   '__nightmare',
@@ -11,7 +12,7 @@ const FLAGS = [
 export const HeadlessVarsStrategy: DetectionStrategy = {
   id: 'bot:globals',
   type: 'bot',
-  version: '1.0.0',
+  version: SDK_VERSION,
   weight: 2.5,
 
   run({ window }) {
