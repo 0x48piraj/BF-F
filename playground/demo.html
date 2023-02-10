@@ -36,8 +36,9 @@
 <script src="../dist/browser.global.js"></script>
 <script>
 (async function () {
-  const adblock = await BFF.detect('adblock')
-  const bot = await BFF.detect('bot')
+  const engine = BFF.create()
+  const adblock = await engine.detect('adblock')
+  const bot = await engine.detect('bot')
 
   function render(id, result) {
     const el = document.getElementById(id)

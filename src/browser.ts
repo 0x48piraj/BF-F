@@ -7,4 +7,11 @@ if (typeof window === 'undefined') {
   )
 }
 
-;(window as any).BFF = createDefaultBFF()
+const g = window as any
+
+if (!g.BFF) {
+  g.BFF = {
+    create: createDefaultBFF,
+    version: '1.0.0'
+  }
+}
