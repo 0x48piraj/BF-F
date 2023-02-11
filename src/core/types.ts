@@ -1,4 +1,8 @@
-export type DetectionType = 'adblock' | 'bot' | 'browser'
+export type DetectionType =
+  | 'adblock'
+  | 'bot'
+  | 'browser'
+  | (string & {})
 
 export interface DetectionContext {
   window: Window

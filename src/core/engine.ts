@@ -41,7 +41,7 @@ export class BFFEngine {
             signal: raw.signal,
             error: raw.error,
             confidence: raw.confidence,
-            weight: raw.weight ?? strategy.weight
+            weight: raw.weight ?? strategy.weight ?? 1
         }
 
         signals.push(signal)
