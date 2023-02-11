@@ -2,7 +2,8 @@ import {
   DetectionStrategy,
   DetectionType,
   DetectionResult,
-  DetectionAggregator
+  DetectionAggregator,
+  BFFHooks
 } from './types'
 import { createContext } from './context'
 import { aggregate } from './result'
@@ -12,11 +13,14 @@ export class BFFEngine {
   readonly version = SDK_VERSION
   private strategies = new Map<string, DetectionStrategy>()
   private aggregateFn: DetectionAggregator
+  private hooks?: BFFHooks
 
   constructor(
-    aggregator: DetectionAggregator = aggregate
+    aggregator: DetectionAggregator = aggregate,
+    hooks?: BFFHooks
   ) {
     this.aggregateFn = aggregator
+    this.hooks = hooks
   }
 
   use(strategy: DetectionStrategy): this {
@@ -54,6 +58,7 @@ export class BFFEngine {
         }
 
         signals.push(signal)
+        this.hooks?.onSignal?.(signal, ctx)
 
         if (signal.block) break
       } catch (err) {
@@ -68,10 +73,12 @@ export class BFFEngine {
         }
 
         signals.push(signal)
+        this.hooks?.onSignal?.(signal, ctx)
         }
     }
 
     const result = this.aggregateFn(signals)
+    this.hooks?.onResult?.(result, ctx)
 
     return result
     }

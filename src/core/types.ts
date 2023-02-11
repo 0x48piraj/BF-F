@@ -44,3 +44,8 @@ export interface DetectionStrategy extends DetectionStrategyMeta {
 export type DetectionAggregator = (
   signals: DetectionSignal[]
 ) => DetectionResult
+
+export interface BFFHooks {
+  onSignal?(signal: DetectionSignal, ctx: DetectionContext): void
+  onResult?(result: DetectionResult, ctx: DetectionContext): void
+}
