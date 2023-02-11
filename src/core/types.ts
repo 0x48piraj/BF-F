@@ -40,3 +40,7 @@ export interface DetectionStrategyMeta {
 export interface DetectionStrategy extends DetectionStrategyMeta {
   run(ctx: DetectionContext): DetectionSignal | Promise<DetectionSignal>
 }
+
+export type DetectionAggregator = (
+  signals: DetectionSignal[]
+) => DetectionResult
