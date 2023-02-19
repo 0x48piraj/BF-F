@@ -8,6 +8,7 @@ import {
 import { createContext } from './context'
 import { aggregate } from './result'
 import { SDK_VERSION } from '../version'
+import { sortStrategies } from './strategyGraph'
 
 export class BFFEngine {
   readonly version = SDK_VERSION
@@ -41,7 +42,12 @@ export class BFFEngine {
   ): Promise<DetectionResult> {
     const signals = []
 
-    for (const strategy of this.strategies.values()) {
+    const candidates = [...this.strategies.values()]
+      .filter(s => s.type === type)
+
+    const ordered = sortStrategies(candidates)
+
+    for (const strategy of ordered) {
       if (strategy.type !== type) continue
 
       try {

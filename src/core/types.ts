@@ -35,6 +35,10 @@ export interface DetectionStrategyMeta {
   version?: string
   description?: string
   weight?: number
+  order?: number
+  after?: string[]
+  before?: string[]
+  dependsOn?: string[]
 }
 
 export interface DetectionStrategy extends DetectionStrategyMeta {
