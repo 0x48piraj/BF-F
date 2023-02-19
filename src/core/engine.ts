@@ -1,4 +1,5 @@
 import {
+  DetectionSignal,
   DetectionStrategy,
   DetectionType,
   DetectionResult,
@@ -40,7 +41,7 @@ export class BFFEngine {
     type: DetectionType,
     ctx = createContext()
   ): Promise<DetectionResult> {
-    const signals = []
+    const signals: DetectionSignal[] = []
 
     const candidates = [...this.strategies.values()]
       .filter(s => s.type === type)
@@ -48,8 +49,6 @@ export class BFFEngine {
     const ordered = sortStrategies(candidates)
 
     for (const strategy of ordered) {
-      if (strategy.type !== type) continue
-
       try {
         const raw = await strategy.run(ctx)
 
