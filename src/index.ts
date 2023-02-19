@@ -1,10 +1,12 @@
 import { createDefaultBFF } from './presets/default'
 export * from './version'
-
-const engine = createDefaultBFF()
-
-// Named exports (for ESM / CJS)
-export { engine as BFF }
 export * from './core/types'
 
-export default engine
+// Explicit singleton
+export const BFF = createDefaultBFF()
+
+// Factory for isolated instances
+export { createDefaultBFF }
+
+// Default export
+export default BFF
