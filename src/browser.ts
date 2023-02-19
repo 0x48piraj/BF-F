@@ -1,4 +1,5 @@
 import { createDefaultBFF } from './presets/default'
+import { createStrictBFF } from './presets/strict'
 import { SDK_VERSION } from './version'
 
 if (typeof window === 'undefined') {
@@ -11,8 +12,22 @@ if (typeof window === 'undefined') {
 const g = window as any
 
 if (!g.BFF) {
+  const defaultEngine = createDefaultBFF()
+
   g.BFF = {
+    // Singleton
+    detect: defaultEngine.detect.bind(defaultEngine),
+    engine: defaultEngine,
+
+    // Factories
     create: createDefaultBFF,
+
+    // Presets
+    presets: {
+      default: createDefaultBFF,
+      strict: createStrictBFF
+    },
+
     version: SDK_VERSION
   }
 }
