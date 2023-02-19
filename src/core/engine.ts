@@ -3,6 +3,7 @@ import {
   DetectionStrategy,
   DetectionType,
   DetectionResult,
+  DetectionContext ,
   DetectionAggregator,
   BFFHooks
 } from './types'
@@ -88,11 +89,23 @@ export class BFFEngine {
     return result
     }
 
-  async detectAll(ctx = createContext()) {
-    return {
-      adblock: await this.detect('adblock', ctx),
-      bot: await this.detect('bot', ctx),
-      browser: await this.detect('browser', ctx)
+  private async runPipeline(
+    types: DetectionType[],
+    ctx: DetectionContext
+  ): Promise<Record<string, DetectionResult>> {
+    const results: Record<string, DetectionResult> = {}
+
+    for (const type of types) {
+      results[type] = await this.detect(type, ctx)
     }
+
+    return results
+  }
+
+  async detectAll(ctx = createContext()) {
+    return this.runPipeline(
+      ['bot', 'browser', 'adblock'],
+      ctx
+    )
   }
 }
