@@ -4,6 +4,6 @@ export function normalizeWeight(w?: number): number {
 }
 
 export function normalizeConfidence(c?: number): number {
-  if (typeof c !== 'number' || Number.isNaN(c)) return 1
+  if (typeof c !== 'number' || Number.isNaN(c)) return 0
   return Math.min(1, Math.max(0, c))
 }
