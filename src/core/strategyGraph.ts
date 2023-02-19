@@ -28,12 +28,19 @@ export function sortStrategies(
     const dependsOn = s.dependsOn ?? []
 
     for (const dep of [...after, ...dependsOn]) {
+      if (dep === s.id) {
+          throw new Error(
+          `[BFF] Strategy "${s.id}" cannot depend on itself`
+          )
+      }
+
       const depNode = nodes.get(dep)
       if (!depNode) {
         throw new Error(
           `[BFF] Strategy "${s.id}" depends on missing strategy "${dep}"`
         )
       }
+
       depNode.edges.add(s.id)
       node.indegree++
     }
