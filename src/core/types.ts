@@ -12,14 +12,26 @@ export interface DetectionContext {
   now: number
 }
 
-export interface DetectionSignal {
-  strategy: string
-  block: boolean
+/**
+ * What a strategy reports.
+ * This is raw, partial, and untrusted.
+ */
+export interface StrategyResult {
+  block?: boolean
+  confidence?: number
   signal?: string
   weight?: number
-  confidence?: number
   error?: boolean
   evidence?: Record<string, string | number | boolean | null>
+}
+
+/**
+ * A normalized, engine-owned signal.
+ * This is what aggregation and policies consume.
+ */
+export interface DetectionSignal extends StrategyResult {
+  strategy: string
+  block: boolean
 }
 
 export interface DetectionResult {
@@ -43,7 +55,7 @@ export interface DetectionStrategyMeta {
 }
 
 export interface DetectionStrategy extends DetectionStrategyMeta {
-  run(ctx: DetectionContext): DetectionSignal | Promise<DetectionSignal>
+  run(ctx: DetectionContext): StrategyResult | Promise<StrategyResult>
 }
 
 export type DetectionAggregator = (

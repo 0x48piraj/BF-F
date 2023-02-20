@@ -65,8 +65,6 @@ export class BFFEngine {
 
         signals.push(signal)
         this.hooks?.onSignal?.(signal, ctx)
-
-        if (signal.block) break
       } catch (err) {
         const signal = {
           strategy: strategy.id,
