@@ -19,6 +19,6 @@ export function aggregate(signals: DetectionSignal[]): DetectionResult {
     blocked: positive > 0,
     confidence: total > 0 ? positive / total : 0,
     signals,
-    version: SDK_VERSION
+    sdkVersion: SDK_VERSION
   }
 }

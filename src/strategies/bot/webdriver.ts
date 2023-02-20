@@ -4,7 +4,7 @@ import { SDK_VERSION } from '../../version'
 export const WebdriverStrategy: DetectionStrategy = {
   id: 'bot:webdriver',
   type: 'bot',
-  version: SDK_VERSION,
+  sdkVersion: SDK_VERSION,
   weight: 4,
 
   run({ navigator }) {

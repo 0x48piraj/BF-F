@@ -12,7 +12,7 @@ const FLAGS = [
 export const HeadlessVarsStrategy: DetectionStrategy = {
   id: 'bot:globals',
   type: 'bot',
-  version: SDK_VERSION,
+  sdkVersion: SDK_VERSION,
   weight: 2.5,
 
   run({ window }) {

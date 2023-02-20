@@ -26,13 +26,13 @@ export interface DetectionResult {
   blocked: boolean
   confidence: number
   signals: DetectionSignal[]
-  version?: string
+  sdkVersion?: string
 }
 
 export interface DetectionStrategyMeta {
   id: string
   type: DetectionType
-  version?: string
+  sdkVersion?: string
   description?: string
   weight?: number
   order?: number

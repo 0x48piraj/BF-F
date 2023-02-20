@@ -4,7 +4,7 @@ import { SDK_VERSION } from '../../version'
 export const DomBaitStrategy: DetectionStrategy = {
   id: 'adblock:dom',
   type: 'adblock',
-  version: SDK_VERSION,
+  sdkVersion: SDK_VERSION,
   weight: 1.5,
 
   run({ document }) {
