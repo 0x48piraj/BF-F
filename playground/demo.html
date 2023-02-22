@@ -17,12 +17,30 @@
       color: #ddd;
       padding: 20px;
     }
+
     .ok { color: #00ff9c; }
+    .warn { color: #ffd166; }
     .bad { color: #ff5f5f; }
-    pre {
-      border-top: 1px dashed #333;
-      padding-top: 12px;
-      margin-top: 12px;
+
+    .panel {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px dashed #333;
+    }
+
+    .slider {
+      width: 300px;
+    }
+
+    .signal {
+      margin-left: 10px;
+    }
+
+    .bar {
+      display: inline-block;
+      height: 8px;
+      background: #888;
+      margin-left: 6px;
     }
   </style>
 </head>
@@ -30,52 +48,83 @@
 
 <h1>BF-F SDK Demo</h1>
 
-<pre id="adblock">Adblock: checking...</pre>
+<div class="panel">
+  <label>
+    Policy threshold:
+    <input
+      id="threshold"
+      class="slider"
+      type="range"
+      min="0"
+      max="1"
+      step="0.01"
+      value="0.6"
+    />
+    <span id="thresholdValue">0.60</span>
+  </label>
+</div>
+
 <pre id="bot">Bot: checking...</pre>
 
 <script src="../dist/browser.global.js"></script>
 <script>
 (async function () {
   const engine = BFF.create()
-  const adblock = await engine.detect('adblock')
-  const bot = await engine.detect('bot')
+  const result = await engine.detect('bot')
 
-  function render(id, result) {
-    const el = document.getElementById(id)
+  const thresholdInput = document.getElementById('threshold')
+  const thresholdValue = document.getElementById('thresholdValue')
+  const output = document.getElementById('bot')
 
-    let output = ''
-    output += id.toUpperCase() + '\n'
-    output += 'Status: ' + (result.blocked ? 'DETECTED' : 'PASSED') + '\n'
-    output +=
-      'Suspicion: ' +
-      Math.round(result.confidence * 100) +
-      '%\n' +
-      '(block confidence: ' +
-      result.confidence.toFixed(2) +
-      ')\n\n'
-    output += 'Signals:\n'
+  function evaluatePolicy(result, threshold) {
+    if (result.confidence >= threshold) {
+      return { action: 'block' }
+    }
+    if (result.confidence >= threshold * 0.6) {
+      return { action: 'challenge' }
+    }
+    return { action: 'allow' }
+  }
+
+  function render(result, threshold) {
+    const decision = evaluatePolicy(result, threshold)
+
+    let cls = 'ok'
+    if (decision.action === 'challenge') cls = 'warn'
+    if (decision.action === 'block') cls = 'bad'
+
+    let text = ''
+    text += 'BOT DETECTION\n'
+    text += `Suspicion score: ${result.suspicion.toFixed(2)}\n`
+    text += `Normalized confidence: ${result.confidence.toFixed(2)}\n`
+    text += `Policy threshold: ${threshold.toFixed(2)}\n`
+    text += `Decision: ${decision.action.toUpperCase()}\n\n`
+    text += 'Signals:\n'
 
     for (const s of result.signals) {
       const weight = s.weight ?? 1
-      const confidence = s.confidence ?? 1
-      const contribution = (weight * confidence).toFixed(2)
+      const conf = s.confidence ?? 0
+      const contribution = weight * conf
+      const barWidth = Math.min(100, contribution * 40)
 
-      output +=
-        `- ${s.strategy}\n` +
-        `  block: ${s.block}\n` +
-        `  weight: ${weight}\n` +
-        `  confidence: ${confidence}\n` +
-        `  contribution: ${contribution}\n\n`
+      text += `- ${s.strategy}\n`
+      text += `  confidence: ${conf}\n`
+      text += `  weight: ${weight}\n`
+      text += `  contribution: ${contribution.toFixed(2)} `
+      text += `[${'#'.repeat(Math.round(barWidth / 10))}]\n\n`
     }
 
-    el.textContent = output
-    el.className = result.blocked ? 'bad' : 'ok'
+    output.textContent = text
+    output.className = cls
   }
 
-  render('adblock', adblock)
-  render('bot', bot)
+  thresholdInput.addEventListener('input', () => {
+    const t = Number(thresholdInput.value)
+    thresholdValue.textContent = t.toFixed(2)
+    render(result, t)
+  })
 
-  console.log('Full result', { adblock, bot })
+  render(result, Number(thresholdInput.value))
 })()
 </script>
 
