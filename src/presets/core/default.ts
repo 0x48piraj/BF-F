@@ -1,12 +1,12 @@
-import { BFFEngine } from '../core/engine'
+import { BFFEngine } from '../../core/engine'
 import {
   ScriptBaitStrategy,
   DomBaitStrategy
-} from '../strategies/adblock'
+} from '../../strategies/adblock'
 import {
   WebdriverStrategy,
   HeadlessVarsStrategy
-} from '../strategies/bot'
+} from '../../strategies/bot'
 
 export function createDefaultBFF() {
   return new BFFEngine()

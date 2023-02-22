@@ -1,5 +1,5 @@
-import { createDefaultBFF } from './presets/default'
-import { createStrictBFF } from './presets/strict'
+import { createDefaultBFF } from './presets/core/default'
+import { createStrictBFF } from './presets/core/strict'
 import { SDK_VERSION } from './version'
 
 if (typeof window === 'undefined') {

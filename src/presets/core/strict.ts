@@ -1,6 +1,6 @@
-import { BFFEngine } from '../core/engine'
-import * as Adblock from '../strategies/adblock'
-import * as Bot from '../strategies/bot'
+import { BFFEngine } from '../../core/engine'
+import * as Adblock from '../../strategies/adblock'
+import * as Bot from '../../strategies/bot'
 
 export function createStrictBFF() {
   const engine = new BFFEngine()

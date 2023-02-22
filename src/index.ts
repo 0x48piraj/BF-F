@@ -1,4 +1,4 @@
-import { createDefaultBFF } from './presets/default'
+import { createDefaultBFF } from './presets/core/default'
 export * from './version'
 export * from './core/types'
 
