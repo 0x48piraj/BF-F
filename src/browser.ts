@@ -1,6 +1,8 @@
 import { createDefaultBFF } from '@bff/presets/core/default'
 import { createStrictBFF } from '@bff/presets/core/strict'
 import { SDK_VERSION } from '@bff/version'
+import { PolicyEngine } from '@bff/policy/engine'
+import { confidenceRule } from '@bff/policy/ruleHelpers'
 
 if (typeof window === 'undefined') {
   throw new Error(
@@ -21,6 +23,10 @@ if (!g.BFF) {
 
     // Factories
     create: createDefaultBFF,
+
+    // Policy
+    PolicyEngine,
+    confidenceRule,
 
     // Presets
     presets: {
