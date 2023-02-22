@@ -1,4 +1,4 @@
-import { DetectionContext } from './types'
+import { DetectionContext } from '@bff/core/types'
 
 export function createContext(): DetectionContext {
   if (typeof window === 'undefined') {

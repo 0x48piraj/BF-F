@@ -1,6 +1,6 @@
-import { createDefaultBFF } from './presets/core/default'
-import { createStrictBFF } from './presets/core/strict'
-import { SDK_VERSION } from './version'
+import { createDefaultBFF } from '@bff/presets/core/default'
+import { createStrictBFF } from '@bff/presets/core/strict'
+import { SDK_VERSION } from '@bff/version'
 
 if (typeof window === 'undefined') {
   throw new Error(

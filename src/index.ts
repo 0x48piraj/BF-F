@@ -1,6 +1,6 @@
-import { createDefaultBFF } from './presets/core/default'
-export * from './version'
-export * from './core/types'
+import { createDefaultBFF } from '@bff/presets/core/default'
+export * from '@bff/version'
+export * from '@bff/core/types'
 
 // Explicit singleton
 export const BFF = createDefaultBFF()

@@ -1,5 +1,5 @@
-import { DetectionStrategy } from '../../core/types'
-import { SDK_VERSION } from '../../version'
+import { DetectionStrategy } from '@bff/core/types'
+import { SDK_VERSION } from '@bff/version'
 
 export const WebdriverStrategy: DetectionStrategy = {
   id: 'bot:webdriver',

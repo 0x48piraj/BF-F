@@ -1,4 +1,4 @@
-import { DetectionStrategy } from './types'
+import { DetectionStrategy } from '@bff/core/types'
 
 type StrategyNode = {
   strategy: DetectionStrategy

@@ -1,5 +1,5 @@
-import { DetectionStrategy } from '../../core/types'
-import { SDK_VERSION } from '../../version'
+import { DetectionStrategy } from '@bff/core/types'
+import { SDK_VERSION } from '@bff/version'
 
 const FLAGS = [
   '__nightmare',

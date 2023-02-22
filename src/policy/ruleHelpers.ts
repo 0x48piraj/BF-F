@@ -1,4 +1,4 @@
-import { PolicyRule } from './rules'
+import { PolicyRule } from '@bff/policy/rules'
 
 export const confidenceRule =
   (

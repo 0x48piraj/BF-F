@@ -6,11 +6,11 @@ import {
   DetectionContext ,
   DetectionAggregator,
   BFFHooks
-} from './types'
-import { createContext } from './context'
-import { aggregate } from './result'
-import { SDK_VERSION } from '../version'
-import { sortStrategies } from './strategyGraph'
+} from '@bff/core/types'
+import { createContext } from '@bff/core/context'
+import { aggregate } from '@bff/core/result'
+import { SDK_VERSION } from '@bff/version'
+import { sortStrategies } from '@bff/core/strategyGraph'
 
 export class BFFEngine {
   readonly version = SDK_VERSION

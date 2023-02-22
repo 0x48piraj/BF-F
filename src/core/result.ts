@@ -1,6 +1,6 @@
-import { DetectionSignal, DetectionResult } from './types'
-import { normalizeWeight, normalizeConfidence, normalizeSuspicion } from './validate'
-import { SDK_VERSION } from '../version'
+import { DetectionSignal, DetectionResult } from '@bff/core/types'
+import { normalizeWeight, normalizeConfidence, normalizeSuspicion } from '@bff/core/validate'
+import { SDK_VERSION } from '@bff/version'
 
 export function aggregate(signals: DetectionSignal[]): DetectionResult {
   let suspicion = 0

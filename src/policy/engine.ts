@@ -1,6 +1,6 @@
-import { DetectionResult } from '../core/types'
-import { PolicyDecision } from './types'
-import { PolicyRule } from './rules'
+import { DetectionResult } from '@bff/core/types'
+import { PolicyDecision } from '@bff/policy/types'
+import { PolicyRule } from '@bff/policy/rules'
 
 export class PolicyEngine {
   private rules: PolicyRule[] = []

@@ -1,2 +1,2 @@
-export { WebdriverStrategy } from './webdriver'
-export { HeadlessVarsStrategy } from './headlessVars'
+export { WebdriverStrategy } from '@bff/strategies/bot/webdriver'
+export { HeadlessVarsStrategy } from '@bff/strategies/bot/headlessVars'

@@ -1,2 +1,2 @@
-export { ScriptBaitStrategy } from './scriptBait'
-export { DomBaitStrategy } from './domBait'
+export { ScriptBaitStrategy } from '@bff/strategies/adblock/scriptBait'
+export { DomBaitStrategy } from '@bff/strategies/adblock/domBait'
