@@ -23,24 +23,23 @@
     .bad { color: #ff5f5f; }
 
     .panel {
-      margin-top: 20px;
+      margin-top: 16px;
       padding: 10px;
       border: 1px dashed #333;
     }
 
-    .slider {
-      width: 300px;
-    }
-
     .signal {
-      margin-left: 10px;
+      padding: 6px;
+      margin: 6px 0;
+      border-left: 3px solid #333;
     }
 
-    .bar {
-      display: inline-block;
-      height: 8px;
-      background: #888;
-      margin-left: 6px;
+    .low { background: rgba(255,255,255,0.05); }
+    .mid { background: rgba(255,200,0,0.15); }
+    .high { background: rgba(255,80,80,0.25); }
+
+    input[type="range"] {
+      width: 140px;
     }
   </style>
 </head>
@@ -49,11 +48,36 @@
 <h1>BF-F SDK Demo</h1>
 
 <div class="panel">
+  <strong>Policy thresholds</strong><br />
+  Block: <span id="blockT">-</span><br />
+  Challenge: <span id="challengeT">-</span><br />
+  Monitor: <span id="monitorT">-</span>
+
   <label>
-    Policy threshold:
+    Detection type:
+    <select id="type">
+      <option value="bot" selected>bot</option>
+      <option value="adblock">adblock</option>
+    </select>
+  </label>
+</div>
+
+<div class="panel">
+  <label>
+    Policy preset:
+    <select id="preset">
+      <option value="conservative">Conservative</option>
+      <option value="balanced" selected>Balanced</option>
+      <option value="aggressive">Aggressive</option>
+    </select>
+  </label>
+
+  <br /><br />
+
+  <label>
+    Base risk threshold:
     <input
       id="threshold"
-      class="slider"
       type="range"
       min="0"
       max="1"
@@ -64,67 +88,155 @@
   </label>
 </div>
 
-<pre id="bot">Bot: checking...</pre>
+<pre id="output">Loading…</pre>
 
 <script src="../dist/browser.global.js"></script>
 <script>
 (async function () {
   const engine = BFF.create()
-  const result = await engine.detect('bot')
 
+  const typeSelect = document.getElementById('type')
+  const presetSelect = document.getElementById('preset')
   const thresholdInput = document.getElementById('threshold')
   const thresholdValue = document.getElementById('thresholdValue')
-  const output = document.getElementById('bot')
+  const output = document.getElementById('output')
 
-  function evaluatePolicy(result, threshold) {
-    if (result.confidence >= threshold) {
-      return { action: 'block' }
+  const blockT = document.getElementById('blockT')
+  const challengeT = document.getElementById('challengeT')
+  const monitorT = document.getElementById('monitorT')
+
+  const POLICY_PROFILES = {
+    conservative: {
+      monitor: 0.8
+    },
+    balanced: {
+      block: 1.0,
+      challenge: 0.6,
+      monitor: 0.3
+    },
+    aggressive: {
+      block: 0.7,
+      challenge: 0.4
     }
-    if (result.confidence >= threshold * 0.6) {
-      return { action: 'challenge' }
-    }
-    return { action: 'allow' }
   }
 
-  function render(result, threshold) {
-    const decision = evaluatePolicy(result, threshold)
+  let result = null
+  let strategyState = {}
+
+  function buildPolicy(base, preset) {
+    const policy = new BFF.PolicyEngine()
+    const profile = POLICY_PROFILES[preset]
+
+    for (const action in profile) {
+      policy.use(
+        BFF.confidenceRule(
+          base * profile[action],
+          action
+        )
+      )
+    }
+
+    return policy
+  }
+
+  function renderPolicyThresholds(base, preset) {
+    const profile = POLICY_PROFILES[preset]
+
+    blockT.textContent =
+      profile.block != null ? (base * profile.block).toFixed(2) : '-'
+
+    challengeT.textContent =
+      profile.challenge != null ? (base * profile.challenge).toFixed(2) : '-'
+
+    monitorT.textContent =
+      profile.monitor != null ? (base * profile.monitor).toFixed(2) : '-'
+  }
+
+  async function runDetection() {
+    result = await engine.detect(typeSelect.value)
+
+    strategyState = {}
+    for (const s of result.signals) {
+      strategyState[s.strategy] = {
+        enabled: true,
+        weight: s.weight ?? 1
+      }
+    }
+
+    render()
+  }
+
+  function render() {
+    if (!result) return
+
+    const threshold = Number(thresholdInput.value)
+    const preset = presetSelect.value
+
+    renderPolicyThresholds(threshold, preset)
+
+    const policy = buildPolicy(threshold, preset)
+
+    let suspicion = 0
+    for (const s of result.signals) {
+      const state = strategyState[s.strategy]
+      if (!state.enabled) continue
+      suspicion += state.weight * (s.confidence ?? 0)
+    }
+
+    const normalized = Math.min(1, suspicion)
+    const decision = policy.evaluate({
+      ...result,
+      suspicion,
+      confidence: normalized
+    })
 
     let cls = 'ok'
     if (decision.action === 'challenge') cls = 'warn'
     if (decision.action === 'block') cls = 'bad'
 
     let text = ''
-    text += 'BOT DETECTION\n'
-    text += `Suspicion score: ${result.suspicion.toFixed(2)}\n`
-    text += `Normalized confidence: ${result.confidence.toFixed(2)}\n`
-    text += `Policy threshold: ${threshold.toFixed(2)}\n`
+    text += `${typeSelect.value.toUpperCase()} DETECTION\n`
+    text += `Suspicion: ${suspicion.toFixed(2)}\n`
+    text += `Confidence: ${normalized.toFixed(2)}\n`
     text += `Decision: ${decision.action.toUpperCase()}\n\n`
-    text += 'Signals:\n'
+    text += `Signals:\n`
 
     for (const s of result.signals) {
-      const weight = s.weight ?? 1
-      const conf = s.confidence ?? 0
-      const contribution = weight * conf
-      const barWidth = Math.min(100, contribution * 40)
+      const state = strategyState[s.strategy]
+      const contribution =
+        state.enabled ? state.weight * (s.confidence ?? 0) : 0
 
-      text += `- ${s.strategy}\n`
-      text += `  confidence: ${conf}\n`
-      text += `  weight: ${weight}\n`
-      text += `  contribution: ${contribution.toFixed(2)} `
-      text += `[${'#'.repeat(Math.round(barWidth / 10))}]\n\n`
+      let level = 'low'
+      if (contribution > 0.5) level = 'mid'
+      if (contribution > 1.2) level = 'high'
+
+      text += `- [${state.enabled ? 'x' : ' '}] ${s.strategy}\n`
+      text += `  confidence: ${s.confidence ?? 0}\n`
+      text += `  weight: ${state.weight}\n`
+      text += `  contribution: ${contribution.toFixed(2)} [${level}]\n\n`
     }
 
     output.textContent = text
     output.className = cls
   }
 
-  thresholdInput.addEventListener('input', () => {
-    const t = Number(thresholdInput.value)
-    thresholdValue.textContent = t.toFixed(2)
-    render(result, t)
+  output.addEventListener('click', e => {
+    const match = e.target.textContent.match(/\[(x| )\] (.+)/)
+    if (!match) return
+    const id = match[2]
+    strategyState[id].enabled = !strategyState[id].enabled
+    render()
   })
 
-  render(result, Number(thresholdInput.value))
+  thresholdInput.addEventListener('input', () => {
+    thresholdValue.textContent = Number(thresholdInput.value).toFixed(2)
+    render()
+  })
+
+  presetSelect.addEventListener('change', render)
+  typeSelect.addEventListener('change', runDetection)
+
+  await runDetection()
 })()
 </script>
 
