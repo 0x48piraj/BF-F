@@ -11,6 +11,8 @@ import { createContext } from '@bff/core/context'
 import { aggregate } from '@bff/core/result'
 import { SDK_VERSION } from '@bff/version'
 import { sortStrategies } from '@bff/core/strategyGraph'
+import { PolicyEngine } from '@bff/policy/engine'
+import { PolicyDecision } from '@bff/policy/types'
 
 export class BFFEngine {
   readonly version = SDK_VERSION
@@ -86,6 +88,17 @@ export class BFFEngine {
 
     return result
     }
+
+  async detectWithPolicy(
+    type: DetectionType,
+    policy: PolicyEngine,
+    ctx = createContext()
+  ): Promise<{ result: DetectionResult; decision: PolicyDecision }> {
+    const result = await this.detect(type, ctx)
+    const decision = policy.evaluate(result)
+
+    return { result, decision }
+  }
 
   private async runPipeline(
     types: DetectionType[],
