@@ -10,6 +10,13 @@
     onerror="window.adBlockerEnabled = true;">
   </script>
 
+  <!-- Strategy graph -->
+  <script src="https://unpkg.com/vis-network@9.1.2/dist/vis-network.min.js"></script>
+  <link
+    href="https://unpkg.com/vis-network@9.1.2/dist/vis-network.min.css"
+    rel="stylesheet"
+  />
+
   <style>
     body {
       font-family: monospace;
@@ -18,28 +25,38 @@
       padding: 20px;
     }
 
+    h1 { margin-bottom: 10px; }
+
     .ok { color: #00ff9c; }
     .warn { color: #ffd166; }
     .bad { color: #ff5f5f; }
 
     .panel {
       margin-top: 16px;
-      padding: 10px;
+      padding: 12px;
       border: 1px dashed #333;
     }
 
-    .signal {
-      padding: 6px;
-      margin: 6px 0;
-      border-left: 3px solid #333;
+    .row {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
     }
 
-    .low { background: rgba(255,255,255,0.05); }
-    .mid { background: rgba(255,200,0,0.15); }
-    .high { background: rgba(255,80,80,0.25); }
+    label {
+      display: block;
+      margin-bottom: 6px;
+    }
 
     input[type="range"] {
-      width: 140px;
+      width: 160px;
+    }
+
+    pre {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px dashed #333;
+      white-space: pre-wrap;
     }
   </style>
 </head>
@@ -47,48 +64,67 @@
 
 <h1>BF-F SDK Demo</h1>
 
+<!-- Detection selection -->
 <div class="panel">
-  <strong>Policy thresholds</strong><br />
+  <strong>Detection</strong>
+  <label>
+    Type:
+    <select id="type">
+      <option value="bot" selected>Bot</option>
+      <option value="adblock">Adblock</option>
+    </select>
+  </label>
+</div>
+
+<!-- Policy controls -->
+<div class="panel">
+  <strong>Policy</strong>
+
+  <div class="row">
+    <div>
+      <label>
+        Preset:
+        <select id="preset">
+          <option value="conservative">Conservative</option>
+          <option value="balanced" selected>Balanced</option>
+          <option value="aggressive">Aggressive</option>
+        </select>
+      </label>
+    </div>
+
+    <div>
+      <label>
+        Base risk threshold:
+        <input
+          id="threshold"
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          value="0.6"
+        />
+        <span id="thresholdValue">0.60</span>
+      </label>
+    </div>
+  </div>
+</div>
+
+<!-- Derived thresholds -->
+<div class="panel">
+  <strong>Derived thresholds</strong><br />
   Block: <span id="blockT">-</span><br />
   Challenge: <span id="challengeT">-</span><br />
   Monitor: <span id="monitorT">-</span>
-
-  <label>
-    Detection type:
-    <select id="type">
-      <option value="bot" selected>bot</option>
-      <option value="adblock">adblock</option>
-    </select>
-  </label>
 </div>
 
-<div class="panel">
-  <label>
-    Policy preset:
-    <select id="preset">
-      <option value="conservative">Conservative</option>
-      <option value="balanced" selected>Balanced</option>
-      <option value="aggressive">Aggressive</option>
-    </select>
-  </label>
-
-  <br /><br />
-
-  <label>
-    Base risk threshold:
-    <input
-      id="threshold"
-      type="range"
-      min="0"
-      max="1"
-      step="0.01"
-      value="0.6"
-    />
-    <span id="thresholdValue">0.60</span>
-  </label>
-</div>
-
+<!-- Results -->
 <pre id="output">Loading…</pre>
+
+<!-- Strategy graph -->
+<div class="panel">
+  <strong>Strategy Execution Graph</strong>
+  <div id="graph" style="height:300px; margin-top:10px;"></div>
+</div>
 
 <script src="../dist/browser.global.js"></script>
 <script>
@@ -105,23 +141,15 @@
   const challengeT = document.getElementById('challengeT')
   const monitorT = document.getElementById('monitorT')
 
-  const POLICY_PROFILES = {
-    conservative: {
-      monitor: 0.8
-    },
-    balanced: {
-      block: 1.0,
-      challenge: 0.6,
-      monitor: 0.3
-    },
-    aggressive: {
-      block: 0.7,
-      challenge: 0.4
-    }
-  }
-
+  let network = null
   let result = null
-  let strategyState = {}
+
+  // Policy profiles
+  const POLICY_PROFILES = {
+    conservative: { monitor: 0.8 },
+    balanced: { block: 1.0, challenge: 0.6, monitor: 0.3 },
+    aggressive: { block: 0.7, challenge: 0.4 }
+  }
 
   function buildPolicy(base, preset) {
     const policy = new BFF.PolicyEngine()
@@ -152,17 +180,68 @@
       profile.monitor != null ? (base * profile.monitor).toFixed(2) : '-'
   }
 
-  async function runDetection() {
-    result = await engine.detect(typeSelect.value)
+  // Strategy graph
+  const STRATEGY_META = {
+    'bot:webdriver': {},
+    'bot:globals': {},
+    'adblock:script': {},
+    'adblock:dom': { after: ['adblock:script'] }
+  }
 
-    strategyState = {}
-    for (const s of result.signals) {
-      strategyState[s.strategy] = {
-        enabled: true,
-        weight: s.weight ?? 1
-      }
+  function renderGraph(signals) {
+    const nodes = []
+    const edges = []
+
+    signals.forEach((s, i) => {
+      nodes.push({
+        id: s.strategy,
+        label: `${i + 1}. ${s.strategy}`,
+        shape: 'box',
+        color: '#222',
+        font: { color: '#ddd' }
+      })
+
+      const meta = STRATEGY_META[s.strategy]
+      const deps = meta?.after || meta?.dependsOn || []
+
+      deps.forEach(dep => {
+        edges.push({
+          from: dep,
+          to: s.strategy,
+          arrows: 'to',
+          color: '#888'
+        })
+      })
+    })
+
+    const data = { nodes, edges }
+
+    const options = {
+      layout: {
+        hierarchical: {
+          enabled: true,
+          direction: 'UD',
+          sortMethod: 'directed'
+        }
+      },
+      physics: false,
+      interaction: { dragNodes: false }
     }
 
+    if (network) {
+      network.setData(data)
+    } else {
+      network = new vis.Network(
+        document.getElementById('graph'),
+        data,
+        options
+      )
+    }
+  }
+
+  // Detection / render loop
+  async function runDetection() {
+    result = await engine.detect(typeSelect.value)
     render()
   }
 
@@ -172,22 +251,21 @@
     const threshold = Number(thresholdInput.value)
     const preset = presetSelect.value
 
+    thresholdValue.textContent = threshold.toFixed(2)
     renderPolicyThresholds(threshold, preset)
 
     const policy = buildPolicy(threshold, preset)
 
     let suspicion = 0
     for (const s of result.signals) {
-      const state = strategyState[s.strategy]
-      if (!state.enabled) continue
-      suspicion += state.weight * (s.confidence ?? 0)
+      suspicion += (s.weight ?? 1) * (s.confidence ?? 0)
     }
 
-    const normalized = Math.min(1, suspicion)
+    const confidence = Math.min(1, suspicion)
     const decision = policy.evaluate({
       ...result,
       suspicion,
-      confidence: normalized
+      confidence
     })
 
     let cls = 'ok'
@@ -197,42 +275,27 @@
     let text = ''
     text += `${typeSelect.value.toUpperCase()} DETECTION\n`
     text += `Suspicion: ${suspicion.toFixed(2)}\n`
-    text += `Confidence: ${normalized.toFixed(2)}\n`
+    text += `Confidence: ${confidence.toFixed(2)}\n`
     text += `Decision: ${decision.action.toUpperCase()}\n\n`
-    text += `Signals:\n`
+    text += 'Signals:\n'
 
     for (const s of result.signals) {
-      const state = strategyState[s.strategy]
       const contribution =
-        state.enabled ? state.weight * (s.confidence ?? 0) : 0
+        (s.weight ?? 1) * (s.confidence ?? 0)
 
-      let level = 'low'
-      if (contribution > 0.5) level = 'mid'
-      if (contribution > 1.2) level = 'high'
-
-      text += `- [${state.enabled ? 'x' : ' '}] ${s.strategy}\n`
+      text += `- ${s.strategy}\n`
       text += `  confidence: ${s.confidence ?? 0}\n`
-      text += `  weight: ${state.weight}\n`
-      text += `  contribution: ${contribution.toFixed(2)} [${level}]\n\n`
+      text += `  weight: ${s.weight ?? 1}\n`
+      text += `  contribution: ${contribution.toFixed(2)}\n\n`
     }
 
     output.textContent = text
     output.className = cls
+
+    renderGraph(result.signals)
   }
 
-  output.addEventListener('click', e => {
-    const match = e.target.textContent.match(/\[(x| )\] (.+)/)
-    if (!match) return
-    const id = match[2]
-    strategyState[id].enabled = !strategyState[id].enabled
-    render()
-  })
-
-  thresholdInput.addEventListener('input', () => {
-    thresholdValue.textContent = Number(thresholdInput.value).toFixed(2)
-    render()
-  })
-
+  thresholdInput.addEventListener('input', render)
   presetSelect.addEventListener('change', render)
   typeSelect.addEventListener('change', runDetection)
 
