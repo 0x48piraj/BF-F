@@ -188,17 +188,61 @@
     'adblock:dom': { after: ['adblock:script'] }
   }
 
+  function getContribution(s) {
+    return (s.weight ?? 1) * (s.confidence ?? 0)
+  }
+
+  function getTopContributors(signals, n = 2) {
+    return signals
+      .map(s => ({
+        id: s.strategy,
+        value: getContribution(s)
+      }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, n)
+      .filter(x => x.value > 0)
+      .map(x => x.id)
+  }
+
   function renderGraph(signals) {
     const nodes = []
     const edges = []
 
+    const top = getTopContributors(signals)
+
     signals.forEach((s, i) => {
+      const contribution = getContribution(s)
+      const enabled = contribution > 0
+      const isTop = top.includes(s.strategy)
+
+      const borderColor = isTop
+        ? '#ff5f5f'   // high contributor
+        : '#555'      // neutral
+
+      let bg = '#222'
+      if (contribution > 1.2) bg = '#3a1f1f'      // high
+      else if (contribution > 0.5) bg = '#3a331f' // mid
+
       nodes.push({
         id: s.strategy,
         label: `${i + 1}. ${s.strategy}`,
         shape: 'box',
-        color: '#222',
-        font: { color: '#ddd' }
+        opacity: enabled ? 1 : 0.25,
+        color: {
+          background: bg,
+          border: borderColor,
+          highlight: {
+            background: bg,
+            border: borderColor
+          },
+          hover: {
+            background: bg,
+            border: borderColor
+          }
+        },
+        font: {
+          color: enabled ? '#ddd' : '#666'
+        }
       })
 
       const meta = STRATEGY_META[s.strategy]
@@ -209,7 +253,13 @@
           from: dep,
           to: s.strategy,
           arrows: 'to',
-          color: '#888'
+          color: enabled ? '#888' : '#444',
+          dashes: true,
+          animation: {
+            enabled: contribution > 0.5,
+            duration: 800,
+            easingFunction: 'easeInOutQuad'
+          }
         })
       })
     })
@@ -225,7 +275,11 @@
         }
       },
       physics: false,
-      interaction: { dragNodes: false }
+      interaction: {
+        dragNodes: false,
+        hover: true,
+        selectable: false
+      }
     }
 
     if (network) {
@@ -258,7 +312,7 @@
 
     let suspicion = 0
     for (const s of result.signals) {
-      suspicion += (s.weight ?? 1) * (s.confidence ?? 0)
+      suspicion += getContribution(s)
     }
 
     const confidence = Math.min(1, suspicion)
@@ -280,13 +334,11 @@
     text += 'Signals:\n'
 
     for (const s of result.signals) {
-      const contribution =
-        (s.weight ?? 1) * (s.confidence ?? 0)
-
+      const c = getContribution(s)
       text += `- ${s.strategy}\n`
       text += `  confidence: ${s.confidence ?? 0}\n`
       text += `  weight: ${s.weight ?? 1}\n`
-      text += `  contribution: ${contribution.toFixed(2)}\n\n`
+      text += `  contribution: ${c.toFixed(2)}\n\n`
     }
 
     output.textContent = text
