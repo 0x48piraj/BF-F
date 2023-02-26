@@ -29,9 +29,14 @@ export interface StrategyResult {
  * A normalized, engine-owned signal.
  * This is what aggregation and policies consume.
  */
-export interface DetectionSignal extends StrategyResult {
+export interface DetectionSignal {
   strategy: string
   block: boolean
+  confidence: number
+  weight: number
+  signal?: string
+  evidence?: Record<string, string | number | boolean | null>
+  executionError?: boolean
 }
 
 export interface DetectionResult {
