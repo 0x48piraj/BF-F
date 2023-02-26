@@ -9,6 +9,7 @@ import {
 } from '@bff/core/types'
 import { createContext } from '@bff/core/context'
 import { aggregate } from '@bff/core/result'
+import { normalizeWeight, normalizeConfidence } from '@bff/core/validate'
 import { SDK_VERSION } from '@bff/version'
 import { sortStrategies } from '@bff/core/strategyGraph'
 import { PolicyEngine } from '@bff/policy/engine'
@@ -56,32 +57,31 @@ export class BFFEngine {
       try {
         const raw = await strategy.run(context)
 
-        const signal = {
-            strategy: strategy.id,
-            block: Boolean(raw.block),
-            signal: raw.signal,
-            error: raw.error,
-            confidence: raw.confidence,
-            weight: raw.weight ?? strategy.weight ?? 1,
-            evidence: raw.evidence
+        const signal: DetectionSignal = {
+          strategy: strategy.id,
+          block: Boolean(raw.block),
+          confidence: normalizeConfidence(raw.confidence),
+          weight: normalizeWeight(raw.weight ?? strategy.weight),
+          signal: raw.signal,
+          evidence: raw.evidence
         }
 
         signals.push(signal)
         this.hooks?.onSignal?.(signal, context)
       } catch (err) {
-        const signal = {
+        const signal: DetectionSignal = {
           strategy: strategy.id,
           block: false,
-          error: true,
           confidence: 0,
-          weight: strategy.weight ?? 1,
+          weight: normalizeWeight(strategy.weight ?? 1),
+          executionError: true,
           signal:
           err instanceof Error ? err.message : 'strategy execution error'
         }
 
         signals.push(signal)
         this.hooks?.onSignal?.(signal, context)
-        }
+      }
     }
 
     const result = this.aggregateFn(signals)

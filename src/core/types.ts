@@ -21,7 +21,6 @@ export interface StrategyResult {
   confidence?: number
   signal?: string
   weight?: number
-  error?: boolean
   evidence?: Record<string, string | number | boolean | null>
 }
 
