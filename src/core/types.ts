@@ -40,7 +40,6 @@ export interface DetectionSignal {
 }
 
 export interface DetectionResult {
-  blocked: boolean
   confidence: number
   suspicion: number
   signals: DetectionSignal[]
