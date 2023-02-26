@@ -42,8 +42,9 @@ export class BFFEngine {
 
   async detect(
     type: DetectionType,
-    ctx = createContext()
+    ctx?: DetectionContext
   ): Promise<DetectionResult> {
+    const context = ctx ?? createContext()
     const signals: DetectionSignal[] = []
 
     const candidates = [...this.strategies.values()]
@@ -53,7 +54,7 @@ export class BFFEngine {
 
     for (const strategy of ordered) {
       try {
-        const raw = await strategy.run(ctx)
+        const raw = await strategy.run(context)
 
         const signal = {
             strategy: strategy.id,
@@ -66,7 +67,7 @@ export class BFFEngine {
         }
 
         signals.push(signal)
-        this.hooks?.onSignal?.(signal, ctx)
+        this.hooks?.onSignal?.(signal, context)
       } catch (err) {
         const signal = {
           strategy: strategy.id,
@@ -79,12 +80,12 @@ export class BFFEngine {
         }
 
         signals.push(signal)
-        this.hooks?.onSignal?.(signal, ctx)
+        this.hooks?.onSignal?.(signal, context)
         }
     }
 
     const result = this.aggregateFn(signals)
-    this.hooks?.onResult?.(result, ctx)
+    this.hooks?.onResult?.(result, context)
 
     return result
     }
