@@ -13,7 +13,14 @@ if (typeof window === 'undefined') {
 
 const g = window as any
 
-if (!g.BFF) {
+if (g.BFF) {
+  if (g.BFF.version !== SDK_VERSION) {
+    console.warn(
+      `[BFF] Multiple versions detected. ` +
+      `Existing: ${g.BFF.version}, Loaded: ${SDK_VERSION}`
+    )
+  }
+} else {
   const defaultEngine = createDefaultBFF()
 
   g.BFF = {
