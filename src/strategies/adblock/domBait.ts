@@ -19,7 +19,6 @@ export const DomBaitStrategy: DetectionStrategy = {
     bait.remove()
 
     return {
-      strategy: 'adblock:dom',
       block: blocked,
       confidence: blocked ? 0.8 : 0.3,
       signal: 'dom bait hidden'

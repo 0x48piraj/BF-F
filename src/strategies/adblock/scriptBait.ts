@@ -12,7 +12,6 @@ export const ScriptBaitStrategy: DetectionStrategy = {
       (globalThis as any).adBlockerEnabled === true
 
     return {
-      strategy: 'adblock:script',
       block: detected,
       confidence: detected ? 0.7 : 0.2,
       signal: 'adsbygoogle blocked'
