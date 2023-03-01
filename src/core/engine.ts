@@ -115,9 +115,10 @@ export class BFFEngine {
   }
 
   async detectAll(ctx = createContext()) {
-    return this.runPipeline(
-      ['bot', 'browser', 'adblock'],
-      ctx
-    )
+    const types = [
+      ...new Set([...this.strategies.values()].map(s => s.type))
+    ].sort((a, b) => a.localeCompare(b));
+
+    return this.runPipeline(types, ctx)
   }
 }
